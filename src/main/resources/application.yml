@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: secure-rest-api-demo
+  profiles:
+    default: dev
 
   datasource:
     url: jdbc:postgresql://localhost:5432/secure_api
