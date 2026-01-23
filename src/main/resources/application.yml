@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: secure-rest-api-demo
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/secure_api
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+
+logging:
+  level:
+    org.springframework.security: INFO
