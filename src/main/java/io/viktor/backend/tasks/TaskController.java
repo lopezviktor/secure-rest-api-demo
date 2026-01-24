@@ -1,5 +1,6 @@
 package io.viktor.backend.tasks;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.viktor.backend.security.CurrentUser;
 import io.viktor.backend.tasks.dto.TaskCreateRequest;
 import io.viktor.backend.tasks.dto.TaskResponse;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
