@@ -13,6 +13,8 @@ This repository is designed as a **portfolio-grade backend project**, not a tuto
 - **Spring Data JPA (Hibernate)**
 - **PostgreSQL 16 (Dockerised)**
 - **Flyway** – database versioning & migrations
+- **Spring Security (JWT, stateless)**
+- **OpenAPI 3.1 / Swagger UI (springdoc)**
 - **Maven**
 - **JUnit 5**
 - **Docker & Docker Compose**
@@ -21,13 +23,28 @@ This repository is designed as a **portfolio-grade backend project**, not a tuto
 
 ## 🧠 What this project demonstrates
 
-- Clean separation between **domain, persistence and configuration layers**
+- Clean separation between **domain, persistence, security and configuration layers**
 - **Database-first approach** using Flyway migrations (no schema auto-generation shortcuts)
 - Proper **JPA entity mapping** aligned with the SQL schema
-- **Environment-based configuration** using Spring Profiles
-- Safe development-only data seeding
-- Reproducible local environment via Docker
-- Architecture ready for **JWT authentication and role-based authorization**
+- **Environment-based configuration** using Spring Profiles (`dev`, `test`)
+- Safe **development-only data seeding** with BCrypt-hashed passwords
+- Reproducible local environment via **Docker & Docker Compose**
+- **JWT-based authentication** (stateless, Bearer tokens)
+- **Role-based authorization** (`ADMIN`, `USER`)
+- **Ownership enforcement** (users can only create tasks for themselves)
+- Centralized **API error handling** (no 500s for business errors)
+- Fully documented API using **OpenAPI 3.1** with **Swagger UI**
+## 🔐 Security Model
+
+- Authentication via **JWT (Bearer tokens)**
+- Stateless security configuration (no sessions)
+- Roles:
+  - `ADMIN`: can create tasks for any user
+  - `USER`: can only create tasks for themselves (ownership enforced server-side)
+- Passwords stored using **BCrypt**
+
+Authorization rules are enforced both at the endpoint level and in the service layer.
+
 
 ---
 
@@ -59,6 +76,17 @@ Profiles are isolated to avoid test pollution and unintended side effects.
 
 ---
 
+
+## 📄 API Documentation (Swagger / OpenAPI)
+
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI spec: `http://localhost:8080/v3/api-docs`
+
+The API is fully documented using **OpenAPI 3.1** and can be tested directly from Swagger UI.
+JWT Bearer authentication is supported via the **Authorize** button.
+
+---
+
 ## 🐳 Run Locally
 
 Requirements:
@@ -76,16 +104,22 @@ PostgreSQL runs fully isolated inside Docker.
 
 ## 📌 Project Status
 
-✔ Database & migrations
-✔ Entities & repositories
-✔ Environment configuration
+✔ Database schema & migrations (Flyway)
+✔ JPA entities & repositories
+✔ Environment profiles (`dev`, `test`)
 ✔ Dev-only data seeding
+✔ REST controllers & service layer
+✔ DTOs & validation
+✔ JWT authentication (stateless)
+✔ Role-based authorization
+✔ Ownership enforcement (USER vs ADMIN)
+✔ Centralized API error handling
+✔ OpenAPI / Swagger documentation
 
 🔜 Next planned steps:
-- REST controllers & service layer
-- DTOs and validation
-- JWT authentication & authorization
-- OpenAPI / Swagger documentation
+- Integration tests (MockMvc / Testcontainers)
+- Extended task endpoints (update, delete, pagination)
+- API hardening & refinements
 
 ---
 
