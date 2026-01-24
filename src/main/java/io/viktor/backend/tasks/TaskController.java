@@ -1,5 +1,6 @@
 package io.viktor.backend.tasks;
 
+import io.viktor.backend.security.CurrentUser;
 import io.viktor.backend.tasks.dto.TaskCreateRequest;
 import io.viktor.backend.tasks.dto.TaskResponse;
 import jakarta.validation.Valid;
@@ -23,9 +24,11 @@ public class TaskController {
         return (userId == null) ? service.findAll() : service.findByUserId(userId);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public TaskResponse create(@Valid @RequestBody TaskCreateRequest req) {
-        return service.create(req);
+        Long currentUserId = CurrentUser.id();
+        boolean isAdmin = CurrentUser.isAdmin();
+        return service.create(req, currentUserId, isAdmin);
     }
 }
