@@ -104,17 +104,17 @@ PostgreSQL runs fully isolated inside Docker.
 
 ## 📌 Project Status
 
-✔ Database schema & migrations (Flyway)
-✔ JPA entities & repositories
-✔ Environment profiles (`dev`, `test`)
-✔ Dev-only data seeding
-✔ REST controllers & service layer
-✔ DTOs & validation
-✔ JWT authentication (stateless)
-✔ Role-based authorization
-✔ Ownership enforcement (USER vs ADMIN)
-✔ Centralized API error handling
-✔ OpenAPI / Swagger documentation
+- ✔ Database schema & migrations (Flyway)
+- ✔ JPA entities & repositories
+- ✔ Environment profiles (`dev`, `test`)
+- ✔ Dev-only data seeding
+- ✔ REST controllers & service layer
+- ✔ DTOs & validation
+- ✔ JWT authentication (stateless)
+- ✔ Role-based authorization
+- ✔ Ownership enforcement (USER vs ADMIN)
+- ✔ Centralized API error handling
+- ✔ OpenAPI / Swagger documentation
 
 🔜 Next planned steps:
 - Integration tests (MockMvc / Testcontainers)
