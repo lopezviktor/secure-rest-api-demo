@@ -30,8 +30,8 @@ public class JwtService {
         Instant exp = now.plusMillis(expirationMillis);
 
         return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("uid", user.getId())
+                .subject(String.valueOf(user.getId()))
+                .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
@@ -39,12 +39,14 @@ public class JwtService {
                 .compact();
     }
 
-    public String extractSubject(String token) {
-        return Jwts.parser()
+    public Long extractUserId(String token) {
+        String sub = Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+
+        return Long.parseLong(sub);
     }
 }
