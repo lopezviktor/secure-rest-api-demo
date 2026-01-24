@@ -34,9 +34,17 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskResponse create(TaskCreateRequest req) {
-        User user = userRepository.findById(req.userId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + req.userId()));
+    public TaskResponse create(TaskCreateRequest req, Long currentUserId, boolean isAdmin) {
+        Long targetUserId;
+
+        if (isAdmin) {
+            targetUserId = (req.userId() != null) ? req.userId() : currentUserId;
+        } else {
+            targetUserId = currentUserId; // USER: siempre él mismo
+        }
+
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + targetUserId));
 
         Task task = new Task();
         task.setTitle(req.title());
