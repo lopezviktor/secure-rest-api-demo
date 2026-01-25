@@ -1,3 +1,4 @@
+[![CI](https://github.com/lopezviktor/qa-automation-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/lopezviktor/qa-automation-framework/actions/workflows/ci.yml)
 # Secure REST API Demo (Spring Boot)
 
 Backend demo project focused on **clean architecture, security-ready design and real-world backend practices** using **Spring Boot 3**, **PostgreSQL**, **Docker** and **Flyway**.
