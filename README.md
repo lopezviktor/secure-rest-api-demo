@@ -1,6 +1,8 @@
 [![CI](https://github.com/lopezviktor/qa-automation-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/lopezviktor/qa-automation-framework/actions/workflows/ci.yml)
 # Secure REST API Demo (Spring Boot)
 
+This repository demonstrates production-ready backend patterns suitable for client work, emphasizing security, correctness, comprehensive testing, and continuous integration.
+
 Backend demo project focused on **clean architecture, security-ready design and real-world backend practices** using **Spring Boot 3**, **PostgreSQL**, **Docker** and **Flyway**.
 
 This repository is designed as a **portfolio-grade backend project**, not a tutorial.
@@ -25,27 +27,25 @@ This repository is designed as a **portfolio-grade backend project**, not a tuto
 ## 🧠 What this project demonstrates
 
 - Clean separation between **domain, persistence, security and configuration layers**
-- **Database-first approach** using Flyway migrations (no schema auto-generation shortcuts)
-- Proper **JPA entity mapping** aligned with the SQL schema
-- **Environment-based configuration** using Spring Profiles (`dev`, `test`)
-- Safe **development-only data seeding** with BCrypt-hashed passwords
-- Reproducible local environment via **Docker & Docker Compose**
-- **JWT-based authentication** (stateless, Bearer tokens)
-- **Role-based authorization** (`ADMIN`, `USER`)
-- **Ownership enforcement** (users can only create tasks for themselves)
-- Centralized **API error handling** (no 500s for business errors)
-- Fully documented API using **OpenAPI 3.1** with **Swagger UI**
+- Security-first design with **JWT-based stateless authentication** and **role-based authorization**
+- Database-first approach using **Flyway migrations** with proper **JPA entity mapping**
+- Ownership enforcement ensuring users can only manage their own tasks unless `ADMIN`
+- Environment-based configuration using Spring Profiles (`dev`, `test`)
+- Reproducible local and test environments via **Docker**, **Docker Compose**, and **Testcontainers**
+- Fully documented API with **OpenAPI 3.1** and **Swagger UI**
+- Centralized API error handling with proper HTTP semantics, including partial updates via HTTP PATCH
+
+---
+
 ## 🔐 Security Model
 
-- Authentication via **JWT (Bearer tokens)**
-- Stateless security configuration (no sessions)
+- Authentication via **stateless JWT (Bearer tokens)**
+- Passwords stored securely using **BCrypt**
 - Roles:
-  - `ADMIN`: can create tasks for any user
-  - `USER`: can only create tasks for themselves (ownership enforced server-side)
-- Passwords stored using **BCrypt**
+  - `ADMIN`: can create, read, update and delete tasks of any user
+  - `USER`: can create, read, update and delete only their own tasks
 
-Authorization rules are enforced both at the endpoint level and in the service layer.
-
+Authorization rules are enforced at both the endpoint and service layers.
 
 ---
 
@@ -73,7 +73,7 @@ The database schema is managed exclusively via **Flyway migrations**.
   - No data seeding
   - Clean application context for testing
 
-Profiles are isolated to avoid test pollution and unintended side effects.
+Profiles ensure isolation to avoid test pollution and unintended side effects.
 
 ---
 
@@ -117,6 +117,8 @@ This file is **local-only** and **must not be committed** to the repository.
 ./mvnw clean test
 ```
 
+---
+
 ## 📄 API Documentation (Swagger / OpenAPI)
 
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
@@ -144,22 +146,26 @@ PostgreSQL runs fully isolated inside Docker.
 
 ## 📌 Project Status
 
-- ✔ Database schema & migrations (Flyway)
-- ✔ JPA entities & repositories
-- ✔ Environment profiles (`dev`, `test`)
-- ✔ Dev-only data seeding
-- ✔ REST controllers & service layer
-- ✔ DTOs & validation
-- ✔ JWT authentication (stateless)
-- ✔ Role-based authorization
-- ✔ Ownership enforcement (USER vs ADMIN)
+- ✔ JWT-based authentication (stateless, Bearer tokens)
+- ✔ Role-based authorization (ADMIN / USER)
+- ✔ Ownership enforcement across all task operations
+- ✔ Full CRUD operations for Tasks
+- ✔ PATCH & DELETE endpoints with ownership enforcement and proper HTTP semantics
+- ✔ Partial updates via HTTP PATCH (no-op supported, validation enforced)
 - ✔ Centralized API error handling
-- ✔ OpenAPI / Swagger documentation
+- ✔ Database-first design with Flyway migrations
+- ✔ Dockerised PostgreSQL environment (dev & test)
+- ✔ Environment profiles separation (dev / test)
+- ✔ Secure development-only data seeding (BCrypt)
+- ✔ OpenAPI 3.1 documentation with Swagger UI
+- ✔ Integration tests using Testcontainers (PostgreSQL)
+- ✔ CI pipeline with automated build & test execution
 
 🔜 Next planned steps:
-- Integration tests (MockMvc / Testcontainers)
-- Extended task endpoints (update, delete, pagination)
-- API hardening & refinements
+- Pagination and sorting
+- Rate limiting
+- CI/CD pipeline hardening
+- API versioning
 
 ---
 
