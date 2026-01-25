@@ -33,8 +33,8 @@ class AuthAndTasksIT {
         userRepository.deleteAll();
 
         // Seed minimal users for tests (DataSeeder is dev-only)
-        userRepository.save(new User("admin@demo.com", passwordEncoder.encode("admin123"), User.Role.ADMIN));
-        userRepository.save(new User("user@demo.com",  passwordEncoder.encode("user123"),  User.Role.USER));
+        userRepository.save(new User("admin@test.com", passwordEncoder.encode("admin1234"), User.Role.ADMIN));
+        userRepository.save(new User("user@test.com",  passwordEncoder.encode("user1234"),  User.Role.USER));
     }
 
     @Test
@@ -44,7 +44,7 @@ class AuthAndTasksIT {
                 .andExpect(status().isUnauthorized());
 
         // 2) Login -> token
-        String token = loginAndGetToken("admin@demo.com", "admin123");
+        String token = loginAndGetToken("admin@test.com", "admin1234");
 
         // 3) With token -> 200
         mvc.perform(get("/api/tasks")
@@ -69,7 +69,7 @@ class AuthAndTasksIT {
                 .getResponse()
                 .getContentAsString();
 
-        ObjectMapper mapper = new ObjectMapper();   // 👈 local, sin @Autowired
+        ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(json);
         return node.get("token").asText();
     }
