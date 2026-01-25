@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class AuthAndTasksTest {
+class AuthAndTasksTest extends IntegrationTestBase{
 
     @Autowired private MockMvc mvc;
 

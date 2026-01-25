@@ -76,6 +76,45 @@ Profiles are isolated to avoid test pollution and unintended side effects.
 
 ---
 
+## 🧪 Testing
+
+### Integration Tests (Testcontainers)
+
+This project uses **Testcontainers** to run integration tests against a real **PostgreSQL** instance in Docker, ensuring realistic and isolated test execution.
+
+#### Requirements
+- Docker Desktop running
+- Java 17+
+
+#### macOS local note
+
+On recent versions of Docker Desktop for macOS, Testcontainers may fail with an error similar to:
+
+```
+client version is too old. Minimum supported API version is 1.44
+```
+
+This is a known compatibility issue between Docker Desktop and `docker-java`.
+
+To fix it locally, create the following file in your home directory:
+
+```bash
+~/.docker-java.properties
+```
+
+With this content:
+
+```properties
+api.version=1.52
+```
+
+This file is **local-only** and **must not be committed** to the repository.
+
+#### Run tests
+
+```bash
+./mvnw clean test
+```
 
 ## 📄 API Documentation (Swagger / OpenAPI)
 
