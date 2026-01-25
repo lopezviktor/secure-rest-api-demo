@@ -99,10 +99,10 @@ class AuthAndTasksTest extends IntegrationTestBase{
                       "userId": %d
                     }
                     """).formatted(adminId)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId").value(userId));
 
-        // 2) USER creates a task for themselves -> 200 OK
+        // 2) USER creates a task for themselves -> 201 OK
         mvc.perform(post("/api/tasks")
                         .header("Authorization", "Bearer " + userToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -111,10 +111,10 @@ class AuthAndTasksTest extends IntegrationTestBase{
                           "title": "own task"
                         }
                         """))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId").value(userId));
 
-        // 3) ADMIN creates a task for any user -> 200 OK
+        // 3) ADMIN creates a task for any user -> 201 OK
         mvc.perform(post("/api/tasks")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -124,7 +124,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
                           "userId": %d
                         }
                         """).formatted(userId)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId").value(userId));
     }
 
