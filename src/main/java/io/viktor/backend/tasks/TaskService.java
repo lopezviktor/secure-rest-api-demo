@@ -1,5 +1,6 @@
 package io.viktor.backend.tasks;
 
+import io.viktor.backend.tasks.dto.TaskUpdateRequest;
 import io.viktor.backend.users.User;
 import io.viktor.backend.users.UserRepository;
 import io.viktor.backend.tasks.dto.TaskCreateRequest;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -20,17 +22,32 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponse> findAll() {
-        return taskRepository.findAll().stream()
+    public List<TaskResponse> findAll(Long requestedUserId, Long currentUserId, boolean isAdmin) {
+
+        if (isAdmin) {
+            if (requestedUserId == null) {
+                return taskRepository.findAll().stream()
+                        .map(this::toResponse)
+                        .toList();
+            }
+
+            return taskRepository.findByUserId(requestedUserId).stream()
+                    .map(this::toResponse)
+                    .toList();
+        }
+
+        // USER: ignore requestedUserId and return only own tasks
+        return taskRepository.findByUserId(currentUserId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponse> findByUserId(Long userId) {
-        return taskRepository.findByUserId(userId).stream()
-                .map(this::toResponse)
-                .toList();
+    public Optional<TaskResponse> findById(Long taskId, Long currentUserId, boolean isAdmin) {
+
+        return taskRepository.findById(taskId)
+                .filter(task -> isAdmin || task.getUser().getId().equals(currentUserId))
+                .map(this::toResponse);
     }
 
     @Transactional
@@ -62,6 +79,38 @@ public class TaskService {
                 task.getUser().getId(),
                 task.getCreatedAt()
         );
+    }
+
+    @Transactional
+    public boolean deleteById(Long taskId, Long currentUserId, boolean isAdmin) {
+
+        return taskRepository.findById(taskId)
+                .filter(task -> isAdmin || task.getUser().getId().equals(currentUserId))
+                .map(task -> {
+                    taskRepository.delete(task);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    @Transactional
+    public Optional<TaskResponse> updateById(Long taskId, TaskUpdateRequest req, Long currentUserId, boolean isAdmin) {
+        return taskRepository.findById(taskId)
+                .filter(task -> isAdmin || task.getUser().getId().equals(currentUserId))
+                .map(task -> {
+                    if (req.title() != null) {
+                        if (req.title().isBlank()) {
+                            throw new IllegalArgumentException("title must not be blank");
+                        } else {
+                            task.setTitle(req.title());
+                        }
+                    }
+                    if (req.completed() != null) {
+                        task.setCompleted(req.completed());
+                    }
+                    Task saved = taskRepository.save(task);
+                    return toResponse(saved);
+                });
     }
 
 }
