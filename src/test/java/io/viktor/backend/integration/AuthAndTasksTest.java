@@ -127,4 +127,58 @@ class AuthAndTasksTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(userId));
     }
+
+    @Test
+    void createTask_rejectsInvalidUserId() throws Exception {
+
+        String adminToken = loginAndGetToken("admin@test.com", "admin1234");
+
+        mvc.perform(post("/api/tasks")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "title": "invalid userId",
+                          "userId": 0
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void login_rejectsInvalidCredentials() throws Exception {
+        mvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "email": "admin@test.com",
+                          "password": "wrong-password"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void protectedEndpoint_rejectsInvalidToken() throws Exception {
+        mvc.perform(get("/api/tasks")
+                        .header("Authorization", "Bearer invalid.token.value"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void createTask_rejectsEmptyTitle() throws Exception {
+        String adminToken = loginAndGetToken("admin@test.com", "admin1234");
+
+        mvc.perform(post("/api/tasks")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "title": ""
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+
 }
