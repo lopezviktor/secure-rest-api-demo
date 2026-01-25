@@ -1,5 +1,6 @@
 package io.viktor.backend.tasks;
 
+import io.viktor.backend.tasks.dto.TaskUpdateRequest;
 import io.viktor.backend.users.User;
 import io.viktor.backend.users.UserRepository;
 import io.viktor.backend.tasks.dto.TaskCreateRequest;
@@ -90,6 +91,26 @@ public class TaskService {
                     return true;
                 })
                 .orElse(false);
+    }
+
+    @Transactional
+    public Optional<TaskResponse> updateById(Long taskId, TaskUpdateRequest req, Long currentUserId, boolean isAdmin) {
+        return taskRepository.findById(taskId)
+                .filter(task -> isAdmin || task.getUser().getId().equals(currentUserId))
+                .map(task -> {
+                    if (req.title() != null) {
+                        if (req.title().isBlank()) {
+                            throw new IllegalArgumentException("title must not be blank");
+                        } else {
+                            task.setTitle(req.title());
+                        }
+                    }
+                    if (req.completed() != null) {
+                        task.setCompleted(req.completed());
+                    }
+                    Task saved = taskRepository.save(task);
+                    return toResponse(saved);
+                });
     }
 
 }

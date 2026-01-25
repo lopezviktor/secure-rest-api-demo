@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.viktor.backend.security.CurrentUser;
 import io.viktor.backend.tasks.dto.TaskCreateRequest;
 import io.viktor.backend.tasks.dto.TaskResponse;
+import io.viktor.backend.tasks.dto.TaskUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -64,5 +65,16 @@ public class TaskController {
 
         boolean deleted = service.deleteById(id, currentUserId, isAdmin);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskResponse> patch(@PathVariable Long id, @RequestBody TaskUpdateRequest req) {
+        Long currentUserId = CurrentUser.id();
+        boolean isAdmin = CurrentUser.isAdmin();
+
+        return service.updateById(id, req, currentUserId, isAdmin)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
