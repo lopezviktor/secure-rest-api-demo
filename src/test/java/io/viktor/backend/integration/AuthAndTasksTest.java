@@ -16,25 +16,33 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class AuthAndTasksIT {
+class AuthAndTasksTest {
 
     @Autowired private MockMvc mvc;
 
     @Autowired private UserRepository userRepository;
     @Autowired private PasswordEncoder passwordEncoder;
 
+    private Long adminId;
+    private Long userId;
+
     @BeforeEach
     void setup() {
         userRepository.deleteAll();
 
-        // Seed minimal users for tests (DataSeeder is dev-only)
-        userRepository.save(new User("admin@test.com", passwordEncoder.encode("admin1234"), User.Role.ADMIN));
-        userRepository.save(new User("user@test.com",  passwordEncoder.encode("user1234"),  User.Role.USER));
+        adminId = userRepository
+                .save(new User("admin@test.com", passwordEncoder.encode("admin1234"), User.Role.ADMIN))
+                .getId();
+
+        userId = userRepository
+                .save(new User("user@test.com", passwordEncoder.encode("user1234"), User.Role.USER))
+                .getId();
     }
 
     @Test
@@ -72,5 +80,51 @@ class AuthAndTasksIT {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(json);
         return node.get("token").asText();
+    }
+
+    @Test
+    void taskCreation_respectsOwnership_and_roles() throws Exception {
+
+        // Tokens
+        String adminToken = loginAndGetToken("admin@test.com", "admin1234");
+        String userToken  = loginAndGetToken("user@test.com", "user1234");
+
+        // 1) USER tries to create for another user -> ownership is enforced (server ignores userId)
+        mvc.perform(post("/api/tasks")
+                        .header("Authorization", "Bearer " + userToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(("""
+                    {
+                      "title": "illegal task",
+                      "userId": %d
+                    }
+                    """).formatted(adminId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(userId));
+
+        // 2) USER creates a task for themselves -> 200 OK
+        mvc.perform(post("/api/tasks")
+                        .header("Authorization", "Bearer " + userToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "title": "own task"
+                        }
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(userId));
+
+        // 3) ADMIN creates a task for any user -> 200 OK
+        mvc.perform(post("/api/tasks")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(("""
+                        {
+                          "title": "admin task",
+                          "userId": %d
+                        }
+                        """).formatted(userId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(userId));
     }
 }
