@@ -7,6 +7,9 @@ import io.viktor.backend.tasks.dto.TaskResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import java.net.URI;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -21,16 +24,36 @@ public class TaskController {
         this.service = service;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public List<TaskResponse> getAll(@RequestParam(required = false)Long userId){
-        return (userId == null) ? service.findAll() : service.findByUserId(userId);
+    public ResponseEntity<List<TaskResponse>> getAll(@RequestParam(required = false) Long userId) {
+        Long currentUserId = CurrentUser.id();
+        boolean isAdmin = CurrentUser.isAdmin();
+
+        List<TaskResponse> results = service.findAll(userId, currentUserId, isAdmin);
+        return ResponseEntity.ok(results);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskResponse> getById(@PathVariable Long id) {
+        Long currentUserId = CurrentUser.id();
+        boolean isAdmin = CurrentUser.isAdmin();
+
+        return service.findById(id, currentUserId, isAdmin)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public TaskResponse create(@Valid @RequestBody TaskCreateRequest req) {
+    public ResponseEntity<TaskResponse> create(@Valid @RequestBody TaskCreateRequest req) {
         Long currentUserId = CurrentUser.id();
         boolean isAdmin = CurrentUser.isAdmin();
-        return service.create(req, currentUserId, isAdmin);
+
+        TaskResponse created = service.create(req, currentUserId, isAdmin);
+
+        URI location = URI.create("/api/tasks/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 }

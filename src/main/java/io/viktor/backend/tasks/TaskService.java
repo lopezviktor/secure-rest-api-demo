@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -20,17 +21,32 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponse> findAll() {
-        return taskRepository.findAll().stream()
+    public List<TaskResponse> findAll(Long requestedUserId, Long currentUserId, boolean isAdmin) {
+
+        if (isAdmin) {
+            if (requestedUserId == null) {
+                return taskRepository.findAll().stream()
+                        .map(this::toResponse)
+                        .toList();
+            }
+
+            return taskRepository.findByUserId(requestedUserId).stream()
+                    .map(this::toResponse)
+                    .toList();
+        }
+
+        // USER: ignore requestedUserId and return only own tasks
+        return taskRepository.findByUserId(currentUserId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponse> findByUserId(Long userId) {
-        return taskRepository.findByUserId(userId).stream()
-                .map(this::toResponse)
-                .toList();
+    public Optional<TaskResponse> findById(Long taskId, Long currentUserId, boolean isAdmin) {
+
+        return taskRepository.findById(taskId)
+                .filter(task -> isAdmin || task.getUser().getId().equals(currentUserId))
+                .map(this::toResponse);
     }
 
     @Transactional
