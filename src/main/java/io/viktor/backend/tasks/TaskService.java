@@ -80,4 +80,16 @@ public class TaskService {
         );
     }
 
+    @Transactional
+    public boolean deleteById(Long taskId, Long currentUserId, boolean isAdmin) {
+
+        return taskRepository.findById(taskId)
+                .filter(task -> isAdmin || task.getUser().getId().equals(currentUserId))
+                .map(task -> {
+                    taskRepository.delete(task);
+                    return true;
+                })
+                .orElse(false);
+    }
+
 }

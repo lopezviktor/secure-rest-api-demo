@@ -9,7 +9,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import java.net.URI;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -55,5 +54,15 @@ public class TaskController {
 
         URI location = URI.create("/api/tasks/" + created.id());
         return ResponseEntity.created(location).body(created);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        Long currentUserId = CurrentUser.id();
+        boolean isAdmin = CurrentUser.isAdmin();
+
+        boolean deleted = service.deleteById(id, currentUserId, isAdmin);
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
