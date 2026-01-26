@@ -5,10 +5,11 @@ import io.viktor.backend.users.User;
 import io.viktor.backend.users.UserRepository;
 import io.viktor.backend.tasks.dto.TaskCreateRequest;
 import io.viktor.backend.tasks.dto.TaskResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,24 +23,33 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponse> findAll(Long requestedUserId, Long currentUserId, boolean isAdmin) {
+    public Page<TaskResponse> findAll(
+            Long requestedUserId,
+            Boolean completed,
+            Long currentUserId,
+            boolean isAdmin,
+            Pageable pageable
+    ) {
+        Page<Task> page;
 
         if (isAdmin) {
             if (requestedUserId == null) {
-                return taskRepository.findAll().stream()
-                        .map(this::toResponse)
-                        .toList();
+                page = (completed == null)
+                        ? taskRepository.findAll(pageable)
+                        : taskRepository.findByCompleted(completed, pageable);
+            } else {
+                page = (completed == null)
+                        ? taskRepository.findByUserId(requestedUserId, pageable)
+                        : taskRepository.findByUserIdAndCompleted(requestedUserId, completed, pageable);
             }
-
-            return taskRepository.findByUserId(requestedUserId).stream()
-                    .map(this::toResponse)
-                    .toList();
+        } else {
+            // USER: ignore requestedUserId
+            page = (completed == null)
+                    ? taskRepository.findByUserId(currentUserId, pageable)
+                    : taskRepository.findByUserIdAndCompleted(currentUserId, completed, pageable);
         }
 
-        // USER: ignore requestedUserId and return only own tasks
-        return taskRepository.findByUserId(currentUserId).stream()
-                .map(this::toResponse)
-                .toList();
+        return page.map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
