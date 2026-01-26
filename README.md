@@ -1,4 +1,4 @@
-[![CI](https://github.com/lopezviktor/qa-automation-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/lopezviktor/qa-automation-framework/actions/workflows/ci.yml)
+[![CI](https://github.com/lopezviktor/secure-rest-api-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/lopezviktor/secure-rest-api-demo/actions/workflows/ci.yml)
 # Secure REST API Demo (Spring Boot)
 
 This repository demonstrates production-ready backend patterns suitable for client work, emphasizing security, correctness, comprehensive testing, and continuous integration.
@@ -163,11 +163,12 @@ PostgreSQL runs fully isolated inside Docker.
 - ✔ Pagination & sorting with Spring Data Pageable
 - ✔ Optional filtering by task completion status (completed=true/false)
 - ✔ Default sorting configuration with client override support
+- ✔ Login rate limiting with Bucket4j (per-IP, headers exposed)
 
 🔜 Next planned steps:
-- Rate limiting
 - CI/CD pipeline hardening
-- API versioning
+- API versioning (/api/v1)
+- Observability & health checks
 
 ---
 
