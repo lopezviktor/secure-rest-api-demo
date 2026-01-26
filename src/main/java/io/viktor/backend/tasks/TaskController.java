@@ -6,12 +6,14 @@ import io.viktor.backend.tasks.dto.TaskCreateRequest;
 import io.viktor.backend.tasks.dto.TaskResponse;
 import io.viktor.backend.tasks.dto.TaskUpdateRequest;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.net.URI;
-
-import java.util.List;
 
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -26,11 +28,16 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAll(@RequestParam(required = false) Long userId) {
+    public ResponseEntity<Page<TaskResponse>> getAll(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Boolean completed,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
         Long currentUserId = CurrentUser.id();
         boolean isAdmin = CurrentUser.isAdmin();
 
-        List<TaskResponse> results = service.findAll(userId, currentUserId, isAdmin);
+        Page<TaskResponse> results = service.findAll(userId, completed, currentUserId, isAdmin, pageable);
         return ResponseEntity.ok(results);
     }
 
