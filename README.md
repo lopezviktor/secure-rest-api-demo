@@ -160,9 +160,11 @@ PostgreSQL runs fully isolated inside Docker.
 - ✔ OpenAPI 3.1 documentation with Swagger UI
 - ✔ Integration tests using Testcontainers (PostgreSQL)
 - ✔ CI pipeline with automated build & test execution
+- ✔ Pagination & sorting with Spring Data Pageable
+- ✔ Optional filtering by task completion status (completed=true/false)
+- ✔ Default sorting configuration with client override support
 
 🔜 Next planned steps:
-- Pagination and sorting
 - Rate limiting
 - CI/CD pipeline hardening
 - API versioning
