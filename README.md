@@ -1,4 +1,5 @@
-[![CI](https://github.com/viktorlopez/secure-rest-api-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/viktorlopez/secure-rest-api-demo/actions/workflows/ci.yml)
+[![CI](https://github.com/lopezviktor/qa-automation-framework/actions/workflows/ci.yml/badge.svg)]
+(https://github.com/lopezviktor/qa-automation-framework/actions/workflows/ci.yml)
 # Secure REST API Demo (Spring Boot)
 
 This repository demonstrates production-ready backend patterns suitable for client work, emphasizing security, correctness, comprehensive testing, and continuous integration.
