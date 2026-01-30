@@ -5,7 +5,6 @@ import io.viktor.backend.users.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -31,7 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
-            HttpServletResponse response,
+            jakarta.servlet.http.HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
 
@@ -47,10 +45,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Long userId = jwtService.extractUserId(token);
 
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                Optional<User> userOpt = userRepository.findById(userId);
-                if (userOpt.isPresent()) {
-                    User user = userOpt.get();
-
+                User user = userRepository.findById(userId).orElse(null);
+                if (user != null) {
                     var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
                     var auth = new UsernamePasswordAuthenticationToken(user.getId(), null, authorities);
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -59,7 +55,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception ignored) {
-            // invalid token -> Don´t auth
+            // Invalid token -> do not authenticate
         }
 
         filterChain.doFilter(request, response);
