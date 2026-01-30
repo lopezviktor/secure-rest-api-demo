@@ -52,6 +52,7 @@ public class SecurityConfig {
                         // Actuator
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/info").hasRole("ADMIN")
+                        .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
                         .requestMatchers("/actuator/**").denyAll()
 
                         // API
