@@ -17,6 +17,7 @@ This repository is designed as a **portfolio-grade backend project**, not a tuto
 - **PostgreSQL 16 (Dockerised)**
 - **Flyway** – database versioning & migrations
 - **Spring Security (JWT, stateless)**
+- **Spring Boot Actuator** – health checks & observability endpoints
 - **OpenAPI 3.1 / Swagger UI (springdoc)**
 - **Maven**
 - **JUnit 5**
@@ -34,6 +35,7 @@ This repository is designed as a **portfolio-grade backend project**, not a tuto
 - Reproducible local and test environments via **Docker**, **Docker Compose**, and **Testcontainers**
 - Fully documented API with **OpenAPI 3.1** and **Swagger UI**
 - Centralized API error handling with proper HTTP semantics, including partial updates via HTTP PATCH
+- Secure observability using **Spring Boot Actuator** with role-based access control and correct HTTP semantics (401 vs 403)
 
 ---
 
@@ -46,6 +48,20 @@ This repository is designed as a **portfolio-grade backend project**, not a tuto
   - `USER`: can create, read, update and delete only their own tasks
 
 Authorization rules are enforced at both the endpoint and service layers.
+
+---
+
+## 🔎 Observability & Actuator
+
+- Spring Boot Actuator is enabled to expose operational and health information.
+- Exposed endpoints:
+  - `/actuator/health` → **Public** (no authentication)
+  - `/actuator/info` → **ADMIN only**
+- All other `/actuator/**` endpoints are **explicitly denied**.
+- Actuator endpoints are protected by the same **JWT-based security filter chain** as the API.
+- Correct HTTP semantics are enforced:
+  - **401 Unauthorized** → request not authenticated
+  - **403 Forbidden** → authenticated but insufficient role
 
 ---
 
@@ -163,12 +179,12 @@ PostgreSQL runs fully isolated inside Docker.
 - ✔ Pagination & sorting with Spring Data Pageable
 - ✔ Optional filtering by task completion status (completed=true/false)
 - ✔ Default sorting configuration with client override support
+- ✔ Secure Actuator endpoints (health public, info ADMIN-only, others denied)
 - ✔ Login rate limiting with Bucket4j (per-IP, headers exposed)
 
 🔜 Next planned steps:
 - CI/CD pipeline hardening
 - API versioning (/api/v1)
-- Observability & health checks
 
 ---
 
