@@ -1,6 +1,7 @@
 package io.viktor.backend.config;
 
 import io.viktor.backend.security.JwtAuthFilter;
+import io.viktor.backend.security.MetricsTokenFilter;
 import io.viktor.backend.security.ratelimit.LoginRateLimitFilter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -20,13 +21,16 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final LoginRateLimitFilter loginRateLimitFilter;
+    private final MetricsTokenFilter metricsTokenFilter;
 
     public SecurityConfig(
             JwtAuthFilter jwtAuthFilter,
-            LoginRateLimitFilter loginRateLimitFilter
+            LoginRateLimitFilter loginRateLimitFilter,
+            MetricsTokenFilter metricsTokenFilter
     ) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.loginRateLimitFilter = loginRateLimitFilter;
+        this.metricsTokenFilter = metricsTokenFilter;
     }
 
     @Bean
@@ -52,6 +56,7 @@ public class SecurityConfig {
                         // Actuator
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/info").hasRole("ADMIN")
+                        .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
                         .requestMatchers("/actuator/**").denyAll()
 
                         // API
@@ -61,6 +66,7 @@ public class SecurityConfig {
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(metricsTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -76,6 +82,13 @@ public class SecurityConfig {
     @Bean
     FilterRegistrationBean<LoginRateLimitFilter> loginRateLimitFilterRegistration(LoginRateLimitFilter filter) {
         FilterRegistrationBean<LoginRateLimitFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    @Bean
+    FilterRegistrationBean<MetricsTokenFilter> metricsTokenFilterRegistration(MetricsTokenFilter filter) {
+        FilterRegistrationBean<MetricsTokenFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;
     }

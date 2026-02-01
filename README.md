@@ -22,6 +22,7 @@ This repository is designed as a **portfolio-grade backend project**, not a tuto
 - **Maven**
 - **JUnit 5**
 - **Docker & Docker Compose**
+- **Prometheus (metrics scraping)**
 
 ---
 
@@ -62,6 +63,36 @@ Authorization rules are enforced at both the endpoint and service layers.
 - Correct HTTP semantics are enforced:
   - **401 Unauthorized** → request not authenticated
   - **403 Forbidden** → authenticated but insufficient role
+
+---
+
+## 📊 Metrics & Prometheus
+
+- The `/actuator/prometheus` endpoint is exposed for metrics scraping.
+- Access is protected by a **static metrics token** (not JWT-based).
+- The token is shared between the application and Prometheus via a file, enabling non-expiring, automation-friendly access.
+
+**Security model:**
+- Requests to `/actuator/prometheus` must include:
+  ```
+  Authorization: Bearer <metrics-token>
+  ```
+- Missing or invalid token → **401 Unauthorized**
+
+**Configuration:**
+- The application reads the token from:
+  - `METRICS_TOKEN_FILE` (preferred)
+  - or `METRICS_TOKEN` (fallback)
+- The actual token value is stored in `observability/prometheus/token.txt` (git-ignored).
+
+### Local Development (Metrics Enabled)
+
+```bash
+./scripts/run-dev.sh
+```
+
+- This script sets `METRICS_TOKEN_FILE` automatically.
+- Normal API usage (auth, tasks) is unaffected.
 
 ---
 
@@ -181,6 +212,7 @@ PostgreSQL runs fully isolated inside Docker.
 - ✔ Default sorting configuration with client override support
 - ✔ Secure Actuator endpoints (health public, info ADMIN-only, others denied)
 - ✔ Login rate limiting with Bucket4j (per-IP, headers exposed)
+- ✔ Secure Prometheus metrics endpoint with token-based access (file-backed, non-expiring)
 
 🔜 Next planned steps:
 - CI/CD pipeline hardening
