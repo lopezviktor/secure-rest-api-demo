@@ -39,7 +39,8 @@ management:
     health:
       show-details: never
   metrics:
-    token: ${METRICS_TOKEN}
+    token: ${METRICS_TOKEN:}
+    token-file: ${METRICS_TOKEN_FILE:}
     tags:
       application: ${spring.application.name:secure-rest-api-demo}
     distribution:

@@ -10,7 +10,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.io.IOException;
 import java.util.List;
 
@@ -19,8 +20,11 @@ public class MetricsTokenFilter extends OncePerRequestFilter {
 
     private final String metricsToken;
 
-    public MetricsTokenFilter(@Value("${management.metrics.token:}") String metricsToken) {
-        this.metricsToken = metricsToken;
+    public MetricsTokenFilter(
+            @Value("${management.metrics.token:}") String envToken,
+            @Value("${management.metrics.token-file:}") String tokenFilePath
+    ) {
+        this.metricsToken = resolveToken(envToken, tokenFilePath);
     }
 
     @Override
@@ -44,6 +48,18 @@ public class MetricsTokenFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String resolveToken(String envToken, String tokenFilePath) {
+        if (tokenFilePath != null && !tokenFilePath.isBlank()) {
+            try {
+                String fromFile = Files.readString(Path.of(tokenFilePath)).trim();
+                if (!fromFile.isBlank()) return fromFile;
+            } catch (Exception ignored) {
+                // If file is not readable, fallback to env token
+            }
+        }
+        return envToken == null ? "" : envToken.trim();
     }
 
     private boolean isPrometheusRequest(HttpServletRequest request) {
