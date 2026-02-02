@@ -96,6 +96,21 @@ Authorization rules are enforced at both the endpoint and service layers.
 
 ---
 
+## 📈 Grafana Dashboard (Core API Metrics)
+
+This project includes a Grafana dashboard for visualizing real-time API behaviour, using Prometheus metrics as the data source and Grafana for visualization.
+
+- **API Request rate (req/s)**
+- **API Latency p95 (ms)**
+- **API Client errors (4xx)**
+- **API Server errors (5xx)**
+
+![Grafana – Core API Metrics](docs/grafana-core-metrics.png)
+
+The dashboard reacts live to API traffic, authentication failures, and error conditions, making it suitable for demonstration and portfolio purposes.
+
+---
+
 ## 🗄️ Database Design
 
 ### Users
