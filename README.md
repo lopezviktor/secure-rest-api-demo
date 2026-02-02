@@ -111,6 +111,108 @@ The dashboard reacts live to API traffic, authentication failures, and error con
 
 ---
 
+## 🛎️ Alerting (Grafana Alert Rules)
+
+This project includes production-grade **Grafana alerts** designed to monitor API availability, server-side errors, and performance degradation in real time. These alerts help ensure system reliability and provide meaningful insights for on-call engineers and portfolio demonstrations.
+
+### API Availability Alert
+
+This alert tracks the overall availability of the API by monitoring Prometheus scrape status.
+
+- **Alert name:** API is DOWN
+- **Metric:** `up{job="secure-rest-api-demo"}`
+- **Condition:** Fires when `up == 0`, indicating the API is unreachable
+- **Pending period:** Includes a grace period to avoid flapping during short restarts or deployments
+- **Auto-recovery:** Automatically returns to *Normal* when the API becomes reachable again
+
+#### Alert lifecycle states:
+
+- **Normal:** API is running and reachable
+- **Pending:** API has just gone down; grace period active
+- **Firing:** API confirmed down after the pending window
+
+This approach mirrors real-world production alerting best practices by minimizing false positives during transient outages.
+
+#### Manual validation steps:
+
+1. Stop the application → Prometheus target status changes to **DOWN**
+2. Grafana alert transitions from **Normal → Pending → Firing**
+3. Restart the application → alert returns to **Normal**
+
+#### Alert screenshots:
+
+**API running (Normal):**  
+![Alert Normal](docs/alerts/api-alert-normal.png)
+
+**API restarting (Pending):**  
+![Alert Pending](docs/alerts/api-alert-pending.png)
+
+**API down (Firing):**  
+![Alert Firing](docs/alerts/api-alert-firing.png)
+
+---
+
+### API 5xx Error Rate Alert
+
+This alert detects server-side failures by monitoring the rate of HTTP 5xx responses, enabling early detection of backend issues before they cause full outages.
+
+- **Alert name:** API 5xx Error Rate High
+- **Metric:**
+  ```promql
+  increase(http_server_requests_seconds_count{status=~"5.."}[5m])
+  ```
+- **Condition:** Fires when the 5xx error rate exceeds a defined threshold over a rolling 5-minute window
+- **Scope:** Focuses exclusively on server errors (5xx), explicitly excluding client errors (4xx)
+- **Auto-recovery:** Automatically resolves when the error rate returns below the threshold
+
+#### Manual validation steps:
+
+1. Induce server-side errors (HTTP 5xx)
+2. Observe alert transition to **Firing**
+3. Remove error condition and confirm automatic recovery to **Normal**
+
+#### Alert screenshots:
+
+**5xx error rate – Normal:**  
+![5xx Alert Normal](docs/alerts/5xx-alert-normal.png)
+
+**5xx error rate – Firing:**  
+![5xx Alert Firing](docs/alerts/5xx-alert-firing.png)
+
+---
+
+### API Latency (p95) Alert
+
+This alert monitors the 95th percentile latency (p95) of API requests, reflecting real user experience more accurately than average response times.
+
+- **Alert name:** API Latency p95 High
+- **Metric:**
+  ```promql
+  histogram_quantile(
+    0.95,
+    sum(rate(http_server_requests_seconds_bucket[5m])) by (le)
+  )
+  ```
+- **Condition:** Fires when p95 latency exceeds a defined threshold for a sustained period
+- **Rationale:** Focuses on tail latency to detect slowdowns before they escalate into outages
+- **Auto-recovery:** Resolves automatically when latency returns to normal levels
+
+#### Alert screenshot:
+
+**Latency p95 – Normal:**  
+![Latency Alert Normal](docs/alerts/latency-alert-normal.png)
+
+---
+
+### Why this alerting setup is production-grade
+
+- **Clear separation** of concerns between availability, error rates, and performance metrics
+- **Minimizes alert fatigue** through the use of pending windows and meaningful signals (5xx errors and p95 latency)
+- **Aligns with real-world SRE/DevOps practices** for on-call monitoring and incident management
+- **Suitable for portfolio demonstration** by showcasing mature monitoring and alerting capabilities
+
+---
+
 ## 🗄️ Database Design
 
 ### Users
