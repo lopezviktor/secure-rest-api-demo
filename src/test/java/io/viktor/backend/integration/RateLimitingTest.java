@@ -55,7 +55,7 @@ class RateLimitingTest {
 
         // First 10 attempts should go through to auth (invalid creds => 400)
         for (int i = 1; i <= 10; i++) {
-            mvc.perform(post("/auth/login")
+            mvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(body))
                     .andExpect(status().isBadRequest())
@@ -64,7 +64,7 @@ class RateLimitingTest {
         }
 
         // 11th attempt must be rate-limited
-        mvc.perform(post("/auth/login")
+        mvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isTooManyRequests())

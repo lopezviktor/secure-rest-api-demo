@@ -48,14 +48,14 @@ class AuthAndTasksTest extends IntegrationTestBase{
     @Test
     void tasksEndpoint_requiresJwt_and_acceptsValidToken() throws Exception {
         // 1) Without token -> 401
-        mvc.perform(get("/api/tasks"))
+        mvc.perform(get("/api/v1/tasks"))
                 .andExpect(status().isUnauthorized());
 
         // 2) Login -> token
         String token = loginAndGetToken("admin@test.com", "admin1234");
 
         // 3) With token -> 200
-        mvc.perform(get("/api/tasks")
+        mvc.perform(get("/api/v1/tasks")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
     }
@@ -69,7 +69,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
             }
             """.formatted(email, password);
 
-        String json = mvc.perform(post("/auth/login")
+        String json = mvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isOk())
@@ -90,7 +90,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
         String userToken  = loginAndGetToken("user@test.com", "user1234");
 
         // 1) USER tries to create for another user -> ownership is enforced (server ignores userId)
-        mvc.perform(post("/api/tasks")
+        mvc.perform(post("/api/v1/tasks")
                         .header("Authorization", "Bearer " + userToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(("""
@@ -103,7 +103,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
                 .andExpect(jsonPath("$.userId").value(userId));
 
         // 2) USER creates a task for themselves -> 201 OK
-        mvc.perform(post("/api/tasks")
+        mvc.perform(post("/api/v1/tasks")
                         .header("Authorization", "Bearer " + userToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -115,7 +115,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
                 .andExpect(jsonPath("$.userId").value(userId));
 
         // 3) ADMIN creates a task for any user -> 201 OK
-        mvc.perform(post("/api/tasks")
+        mvc.perform(post("/api/v1/tasks")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(("""
@@ -133,7 +133,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
 
         String adminToken = loginAndGetToken("admin@test.com", "admin1234");
 
-        mvc.perform(post("/api/tasks")
+        mvc.perform(post("/api/v1/tasks")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -147,7 +147,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
 
     @Test
     void login_rejectsInvalidCredentials() throws Exception {
-        mvc.perform(post("/auth/login")
+        mvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                         {
@@ -160,7 +160,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
 
     @Test
     void protectedEndpoint_rejectsInvalidToken() throws Exception {
-        mvc.perform(get("/api/tasks")
+        mvc.perform(get("/api/v1/tasks")
                         .header("Authorization", "Bearer invalid.token.value"))
                 .andExpect(status().isUnauthorized());
     }
@@ -169,7 +169,7 @@ class AuthAndTasksTest extends IntegrationTestBase{
     void createTask_rejectsEmptyTitle() throws Exception {
         String adminToken = loginAndGetToken("admin@test.com", "admin1234");
 
-        mvc.perform(post("/api/tasks")
+        mvc.perform(post("/api/v1/tasks")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
