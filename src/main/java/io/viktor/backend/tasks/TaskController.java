@@ -14,10 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.net.URI;
+import io.viktor.backend.common.web.ApiPaths;
 
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping(ApiPaths.API_V1 + "/tasks")
 public class TaskController {
 
     private final TaskService service;

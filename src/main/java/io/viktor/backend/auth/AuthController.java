@@ -4,9 +4,10 @@ import io.viktor.backend.auth.dto.AuthResponse;
 import io.viktor.backend.auth.dto.LoginRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import io.viktor.backend.common.web.ApiPaths;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping(ApiPaths.API_V1 + "/auth")
 public class AuthController {
 
     private final AuthService service;
