@@ -1,8 +1,11 @@
 name: CI
+
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
-    push:
-      branches: [ "main" ]
+    branches: [ "main" ]
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -20,3 +23,23 @@ jobs:
 
       - name: Run tests
         run: ./mvnw -B clean test
+
+      - name: Generate JaCoCo badge
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: target/site/jacoco/jacoco.csv
+          badges-directory: docs/badges
+          generate-branches-badge: false
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco
+
+      - name: Commit JaCoCo badge (main only)
+        if: github.ref == 'refs/heads/main'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'docs/badges/jacoco.svg'
+          message: 'chore(ci): update JaCoCo coverage badge'
