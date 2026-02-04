@@ -6,6 +6,12 @@ spring:
     name: secure-rest-api-demo
   profiles:
     default: dev
+  messages:
+    basename: messages
+    encoding: UTF-8
+  web:
+    locale: en
+    locale-resolver: fixed
 
   datasource:
     url: jdbc:postgresql://localhost:5432/secure_api
