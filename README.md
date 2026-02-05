@@ -1,4 +1,8 @@
 [![CI](https://github.com/lopezviktor/secure-rest-api-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/lopezviktor/secure-rest-api-demo/actions/workflows/ci.yml) ![Coverage](docs/badges/jacoco.svg)
+![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green?logo=springboot)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
+
 # Secure REST API Demo (Spring Boot)
 
 This repository demonstrates production-ready backend patterns suitable for client work, emphasizing security, correctness, comprehensive testing, and continuous integration.
