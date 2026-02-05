@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
 public record TaskCreateRequest(
-        @NotBlank String title,
+        @NotBlank(message = "{task.title.notBlank}")
+        String title,
         @Positive Long userId
 ) {}
