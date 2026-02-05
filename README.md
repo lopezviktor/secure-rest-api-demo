@@ -283,6 +283,37 @@ This file is **local-only** and **must not be committed** to the repository.
 
 ---
 
+## ❗ API Error Handling
+
+The API provides consistent, structured error responses across all endpoints.
+
+Handled scenarios include:
+
+- Validation errors (field‑level messages)
+- Malformed JSON payloads
+- Unauthorized / forbidden access
+- Resource not found
+- Server errors
+
+Example validation response:
+
+```json
+{
+  "timestamp": "...",
+  "status": 400,
+  "error": "Bad Request",
+  "path": "/api/v1/tasks",
+  "message": "Validation failed",
+  "fields": {
+    "title": "Title must not be blank"
+  }
+}
+```
+
+This ensures predictable client behaviour and mirrors production‑grade REST error semantics.
+
+---
+
 ## 📄 API Documentation (Swagger / OpenAPI)
 
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
@@ -290,6 +321,19 @@ This file is **local-only** and **must not be committed** to the repository.
 
 The API is fully documented using **OpenAPI 3.1** and can be tested directly from Swagger UI.
 JWT Bearer authentication is supported via the **Authorize** button.
+
+---
+
+## 🔢 API Versioning
+
+All public endpoints are exposed under `/api/v1`.
+
+This allows future backward‑compatible evolution of the API while preserving existing clients.
+
+Examples:
+- `/api/v1/auth/login`
+- `/api/v1/tasks`
+- `/api/v1/tasks/{id}`
 
 ---
 
@@ -323,17 +367,18 @@ PostgreSQL runs fully isolated inside Docker.
 - ✔ Secure development-only data seeding (BCrypt)
 - ✔ OpenAPI 3.1 documentation with Swagger UI
 - ✔ Integration tests using Testcontainers (PostgreSQL)
-- ✔ CI pipeline with automated build & test execution
 - ✔ Pagination & sorting with Spring Data Pageable
 - ✔ Optional filtering by task completion status (completed=true/false)
 - ✔ Default sorting configuration with client override support
 - ✔ Secure Actuator endpoints (health public, info ADMIN-only, others denied)
 - ✔ Login rate limiting with Bucket4j (per-IP, headers exposed)
 - ✔ Secure Prometheus metrics endpoint with token-based access (file-backed, non-expiring)
+- ✔ CI/CD pipeline with GitHub Actions (automated build & test on PRs and main)
 
-🔜 Next planned steps:
-- CI/CD pipeline hardening
-- API versioning (/api/v1)
+🔜 Possible future extensions (optional):
+
+- Deployment automation
+- Additional observability exporters
 
 ---
 
