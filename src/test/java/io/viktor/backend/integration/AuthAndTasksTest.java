@@ -180,5 +180,28 @@ class AuthAndTasksTest extends IntegrationTestBase{
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void actuatorInfo_requiresAuth_returns401WithoutToken() throws Exception {
+        mvc.perform(get("/actuator/info"))
+                .andExpect(status().isUnauthorized());
+    }
 
+    @Test
+    void actuatorInfo_returns403ForAuthenticatedUserWithoutAdminRole() throws Exception {
+        String userToken = loginAndGetToken("user@test.com", "user1234");
+
+        mvc.perform(get("/actuator/info")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void actuatorInfo_returns200ForAdmin() throws Exception {
+        String adminToken = loginAndGetToken("admin@test.com", "admin1234");
+
+        mvc.perform(get("/actuator/info")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+    }
+    
 }
