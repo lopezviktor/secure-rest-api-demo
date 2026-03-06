@@ -45,21 +45,6 @@ class AuthAndTasksTest extends IntegrationTestBase{
                 .getId();
     }
 
-    @Test
-    void tasksEndpoint_requiresJwt_and_acceptsValidToken() throws Exception {
-        // 1) Without token -> 401
-        mvc.perform(get("/api/v1/tasks"))
-                .andExpect(status().isUnauthorized());
-
-        // 2) Login -> token
-        String token = loginAndGetToken("admin@test.com", "admin1234");
-
-        // 3) With token -> 200
-        mvc.perform(get("/api/v1/tasks")
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk());
-    }
-
     private String loginAndGetToken(String email, String password) throws Exception {
 
         String body = """
@@ -80,6 +65,21 @@ class AuthAndTasksTest extends IntegrationTestBase{
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(json);
         return node.get("token").asText();
+    }
+
+    @Test
+    void tasksEndpoint_requiresJwt_and_acceptsValidToken() throws Exception {
+        // 1) Without token -> 401
+        mvc.perform(get("/api/v1/tasks"))
+                .andExpect(status().isUnauthorized());
+
+        // 2) Login -> token
+        String token = loginAndGetToken("admin@test.com", "admin1234");
+
+        // 3) With token -> 200
+        mvc.perform(get("/api/v1/tasks")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
     }
 
     @Test
