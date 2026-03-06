@@ -5,10 +5,11 @@
 The goal of this test strategy is to ensure that the secure REST API behaves correctly, securely, and reliably under normal and abnormal conditions.
 
 The main risks this strategy aims to reduce are:
-- **Authentication and authorization failures**
+- **Authentication bypass** (accessing protected endpoints without a valid JWT).
+- **Authorization failures / role escalation** where a user gains access to resources requiring higher privileges.
 - **Data integrity issues** caused by incorrect validation or database interactions.
-- **API contract regressions** where endpoints return incorrect responses after code changes.
-- __Security vulnerabilities__ such as accepting invalid tokens or exposing protected endpoints. 
+- **API contract regressions** where endpoints return incorrect status codes or payload formats after code changes.
+- **Security vulnerabilities** such as accepting invalid, expired, or malformed tokens.
 
 ---
 ### Scope 
@@ -67,9 +68,11 @@ Examples:
 - Authentication and authorization behaviour
 
 Typical checks:
-- Valid token -> access allowed
-- Invalid token -> 401
-- Valid token but wrong role -> 403
+- No token -> 401 Unauthorized
+- Invalid token -> 401 Unauthorized
+- Valid token but wrong role -> 403 Forbidden
+- Valid token and correct role -> 200 OK
+- Invalid payload -> 400 Bad Request
 
 **End-to-End tests**
 
@@ -110,11 +113,11 @@ Testing tools used in the project:
 ### Metrics
 
 Quality will be monitored using the following metrics:
-- **Test coverage**
-- **Test execution time**
-- **Build success rate**
-- **Number of failing tests**
-- **API response time for critical endpoints**
+- **Test coverage target:** at least 70% coverage on core modules.
+- **CI pipeline duration:** under 5 minutes for the full test suite.
+- **Build success rate:** CI builds should remain consistently green.
+- **Number of failing tests:** must remain zero before merging changes.
+- **API response time:** critical endpoints should respond under 500 ms under normal conditions.
 
 ---
 
@@ -139,16 +142,17 @@ Testing is considered complete when:
 ### Non-functional
 
 Some non-functional aspects will also be considered:
-- **Performance:** API responses should typically remain under 500ms.
-- **Security behaviour:** unauthorized access must always be blocked.
-- **Reliability:** system should not crash when invalid input is provided.
+- **Performance:** critical API endpoints should respond under 500 ms in normal conditions.
+- **Security behaviour:** unauthorized access must always be blocked and invalid tokens rejected.
+- **Reliability:** the system must handle invalid input without crashing and return appropriate error responses.
 
 ---
 
 ### Known gaps
 
 Current gaps that may need improvement:
-- Limited performance testing.
-- No automated load testing yet.
-- Security testing could be extended with more negative cases.
+- No automated load or stress testing yet.
+- Limited performance benchmarking of API endpoints.
+- Security testing could include additional scenarios such as expired tokens and malformed JWTs.
 - Contract testing between services is not implemented.
+- No chaos or resilience testing for infrastructure failures.
